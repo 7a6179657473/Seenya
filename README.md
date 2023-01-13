@@ -8,10 +8,10 @@ Im not a coder, so dont expect too much but feel free to throw suggestions aroun
 
 # Roadmap
 
-1. TBD
-2. TBD
-3. TBD
-4. TBD
+1. Sequence of functions (The technical steps and functions drawn out)
+2. Foundational structures of code
+3. Functioning backend (program should be function via cli at this point)
+4. TBD 
 
 
 # What Seenya is built on
