@@ -20,7 +20,9 @@ Im not a coder, so dont expect too much but feel free to throw suggestions aroun
 
 6. Optimize and refine the script as needed to improve performance and reliability.
 
-7. Add any additional features or functionality as desired.
+7. Add any additional features or functionality as desired. (GUI (JS angular based) )
+
+8. submission to Hak5 to be a MK7 module
 
 
 # What Seenya is built on
