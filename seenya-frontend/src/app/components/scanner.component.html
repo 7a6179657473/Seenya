@@ -1,0 +1,152 @@
+<div class="scanner-container">
+  <!-- Header -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>wifi_find</mat-icon>
+        Seenya Wireless Scanner
+      </mat-card-title>
+      <mat-card-subtitle>Phase 1: MAC Address Detection</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Controls -->
+  <mat-card class="controls-card">
+    <mat-card-content>
+      <div class="controls-row">
+        <!-- Interface Selection -->
+        <mat-form-field appearance="outline" class="interface-select">
+          <mat-label>Wireless Interface</mat-label>
+          <mat-select [(value)]="selectedInterface" [disabled]="isScanning">
+            <mat-option *ngFor="let interface of availableInterfaces" [value]="interface">
+              {{ interface }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Select the wireless interface to scan</mat-hint>
+        </mat-form-field>
+
+        <!-- Scan Controls -->
+        <div class="scan-buttons">
+          <button mat-raised-button 
+                  color="primary" 
+                  (click)="startScanning()"
+                  [disabled]="isScanning || isLoading || availableInterfaces.length === 0">
+            <mat-icon>play_arrow</mat-icon>
+            Start Scanning
+          </button>
+
+          <button mat-raised-button 
+                  color="warn" 
+                  (click)="stopScanning()"
+                  [disabled]="!isScanning || isLoading">
+            <mat-icon>stop</mat-icon>
+            Stop Scanning
+          </button>
+        </div>
+
+        <!-- Status Indicator -->
+        <div class="status-indicator">
+          <mat-chip-listbox>
+            <mat-chip-option [selected]="isScanning" [color]="isScanning ? 'primary' : 'basic'">
+              <mat-icon>{{ isScanning ? 'radar' : 'wifi_off' }}</mat-icon>
+              {{ isScanning ? 'Scanning Active' : 'Scanning Stopped' }}
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </div>
+
+      <!-- Loading Indicator -->
+      <mat-progress-bar *ngIf="isLoading" mode="indeterminate" class="loading-bar"></mat-progress-bar>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Device List -->
+  <mat-card class="devices-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>devices</mat-icon>
+        Detected Devices ({{ detectedDevices.length }})
+      </mat-card-title>
+      <div class="header-actions">
+        <button mat-icon-button (click)="refreshDevices()" matTooltip="Refresh">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button mat-icon-button (click)="clearDevices()" matTooltip="Clear All" color="warn">
+          <mat-icon>clear_all</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Empty State -->
+      <div *ngIf="detectedDevices.length === 0" class="empty-state">
+        <mat-icon class="empty-icon">wifi_find</mat-icon>
+        <h3>No devices detected yet</h3>
+        <p>Start scanning to detect wireless devices in range</p>
+      </div>
+
+      <!-- Devices Table -->
+      <div *ngIf="detectedDevices.length > 0" class="table-container">
+        <table mat-table [dataSource]="detectedDevices" class="devices-table" matSort>
+          
+          <!-- MAC Address Column -->
+          <ng-container matColumnDef="mac">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>MAC Address</th>
+            <td mat-cell *matCellDef="let device" class="mac-address">
+              <mat-icon class="device-icon">{{ device.device_type === 'Apple' ? 'phone_iphone' : 'device_unknown' }}</mat-icon>
+              <span class="mac-text">{{ device.mac }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Device Type Column -->
+          <ng-container matColumnDef="device_type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Device Type</th>
+            <td mat-cell *matCellDef="let device">
+              <mat-chip>{{ device.device_type }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Signal Strength Column -->
+          <ng-container matColumnDef="signal_strength">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Signal Strength</th>
+            <td mat-cell *matCellDef="let device">
+              <span class="signal-strength" [style.color]="getSignalStrengthColor(device.signal_strength)">
+                <mat-icon>wifi</mat-icon>
+                {{ device.signal_strength }} dBm
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Count Column -->
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Packets</th>
+            <td mat-cell *matCellDef="let device">
+              <mat-chip color="accent">{{ device.count }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- First Seen Column -->
+          <ng-container matColumnDef="first_seen">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>First Seen</th>
+            <td mat-cell *matCellDef="let device" class="timestamp">
+              {{ formatTimestamp(device.first_seen) }}
+            </td>
+          </ng-container>
+
+          <!-- Last Seen Column -->
+          <ng-container matColumnDef="last_seen">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Seen</th>
+            <td mat-cell *matCellDef="let device" class="timestamp">
+              {{ formatTimestamp(device.last_seen) }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
+              [class.highlighted]="isScanning" 
+              class="device-row"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

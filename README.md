@@ -1,45 +1,136 @@
-# Seenya
+# Seenya - Wireless MAC Address Scanner
 
+**Phase 1: MAC Address Detection Module** ✅ **COMPLETED**
 
-TLDR >> Seenya is a tool to detect wireless device mac addresses and log/report on them if they have been seen before.
+Seenya is a powerful wireless device detection tool that captures and monitors MAC addresses of devices within wireless range. Built with Python (Flask) backend and Angular Material frontend, it provides real-time detection and logging capabilities.
 
-Im not a coder, so dont expect too much but feel free to throw suggestions around
+## 🚀 Current Status: Phase 1 Complete
 
+### ✅ What's Working:
+- Real-time wireless MAC address detection using scapy
+- Modern Angular Material UI for device monitoring
+- WebSocket-based real-time updates
+- Device type identification (OUI lookup)
+- Signal strength monitoring
+- Packet count tracking
+- First/last seen timestamps
 
-# Roadmap
+### 📋 Features:
+- **Backend**: Python Flask API with SocketIO for real-time communication
+- **Frontend**: Angular 16 with Material Design components
+- **Scanning**: Wireless packet capture using scapy library
+- **Real-time**: Live updates via WebSocket connections
+- **Cross-platform**: Windows support with PowerShell setup scripts
 
-1. Research the wireless capture card and its capabilities to ensure it can be used to create a wireless access point and capture MAC addresses of connected devices.
+## 🛠️ Quick Start
 
-2. Set up the wireless capture card on your laptop and test its functionality by creating a wireless access point and connecting to it with a test device.
+### Prerequisites
+- **Python 3.8+** (for backend)
+- **Node.js 16+** (for frontend)
+- **Administrator privileges** (required for packet capture on Windows)
 
-3. Write the script to create a wireless access point using the wireless capture card and beacon out to nearby cellular phones.
+### Installation
 
-4. Develop a mechanism to capture the MAC addresses of connected devices, and save them to a log file.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd Seenya
+   ```
 
-5. Test the script by running it and verifying that it is able to create a wireless access point, beacon to nearby cellular phones, and capture and save their MAC addresses to a log file.
+2. **Setup Backend** (Run as Administrator)
+   ```bash
+   setup-backend.bat
+   ```
 
-6. Optimize and refine the script as needed to improve performance and reliability.
+3. **Setup Frontend**
+   ```bash
+   setup-frontend.bat
+   ```
 
-7. Add any additional features or functionality as desired. (GUI (JS angular based) )
+### Running the Application
 
-8. submission to Hak5 to be a MK7 module
+1. **Start Backend** (Run as Administrator)
+   ```bash
+   start-backend.bat
+   ```
+   Backend will be available at: http://localhost:5000
 
+2. **Start Frontend** (In another terminal)
+   ```bash
+   start-frontend.bat
+   ```
+   Frontend will be available at: http://localhost:4200
 
-# What Seenya is built on
+3. **Open your browser** and navigate to http://localhost:4200
 
-The current plan is for Seenya to be run as python cli, with future GUI plans.
-Seenya additionaly will be open source and remain that  way.
+## 📁 Project Structure
 
+```
+Seenya/
+├── seenya-backend/           # Python Flask API
+│   ├── app/
+│   │   ├── services/         # Wireless scanning service
+│   │   ├── routes/          # API endpoints
+│   │   ├── models/          # Data models
+│   │   └── utils/           # Utilities
+│   ├── requirements.txt     # Python dependencies
+│   └── run.py              # Main application entry
+├── seenya-frontend/         # Angular Material UI
+│   ├── src/app/
+│   │   ├── components/      # UI components
+│   │   ├── services/        # API services
+│   │   └── models/         # TypeScript interfaces
+│   └── package.json        # Node.js dependencies
+├── setup-backend.bat       # Backend setup script
+├── setup-frontend.bat      # Frontend setup script
+├── start-backend.bat       # Backend start script
+├── start-frontend.bat      # Frontend start script
+└── WARP.md                # Development guidance
+```
 
-# Is Seenya currently functional in any way?
+## 🔧 API Endpoints
 
-No
+- `GET /health` - Health check
+- `GET /api/scanning/interfaces` - Get wireless interfaces
+- `POST /api/scanning/start` - Start scanning
+- `POST /api/scanning/stop` - Stop scanning
+- `GET /api/scanning/status` - Get scanning status
+- `GET /api/scanning/devices` - Get detected devices
+- `POST /api/scanning/devices/clear` - Clear detected devices
+- `WebSocket: ws://localhost:5000` - Real-time device updates
 
+## 🎯 Roadmap
 
-# Okay but what is  Seenya tho?
+### Phase 2: Logging & Database (Next)
+- [ ] Database integration (SQLite/PostgreSQL)
+- [ ] Historical device logs
+- [ ] Device tracking over time
+- [ ] Alert system for known/new devices
+- [ ] Export functionality (CSV, JSON)
 
-Seenya is an attempt at a python based script/program that utilizes the
-aircrack-ng suite to gather MAC addresses of phones or smartwatches that
-come into range of your wireless AP/wireless card. As the MAC comes into
-range, the script will save the MAC of the device to a file and check if
-it already exists, if yes, create an alert of some kind.
+### Phase 3: Advanced Features
+- [ ] Access Point creation mode
+- [ ] Device fingerprinting
+- [ ] Network mapping
+- [ ] Mobile app companion
+
+### Phase 4: Hardware Integration
+- [ ] Hak5 Pineapple module
+- [ ] Raspberry Pi deployment
+- [ ] Portable hardware solution
+
+## 🔒 Security & Legal Notice
+
+**Important**: This tool is designed for educational and authorized security testing purposes only. Ensure you have explicit permission before scanning networks you don't own. Wireless monitoring may be subject to local laws and regulations.
+
+## 🤝 Contributing
+
+Contributions are welcome! This project is open source and will remain that way.
+
+## 📄 License
+
+Open source - feel free to contribute and suggest improvements!
+
+---
+
+**Note**: Administrator privileges are required on Windows for packet capture functionality. The tool currently works best in monitor mode on wireless interfaces that support it.
