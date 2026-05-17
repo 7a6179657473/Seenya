@@ -4,6 +4,8 @@ Seenya Wireless Scanner - Main Application Entry Point
 
 import os
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 from app import create_app, socketio
 from app.services.wireless_scanner import scanner
 
@@ -65,20 +67,26 @@ def main():
             print("WARNING: Administrator privileges may be required for packet capture on Windows.")
             print("Consider running as administrator if you encounter permission errors.")
     
-    print(f"\nServer starting on http://localhost:5000")
+    host = os.getenv("SEENYA_HOST", "127.0.0.1")
+    port = int(os.getenv("SEENYA_PORT", "5000"))
+    debug = os.getenv("SEENYA_DEBUG", "false").lower() == "true"
+
+    print(f"\nServer starting on http://{host}:{port}")
     print("API endpoints:")
-    print("  GET  /health                    - Health check")
-    print("  GET  /api/scanning/interfaces   - Get wireless interfaces")
-    print("  POST /api/scanning/start        - Start scanning")
-    print("  POST /api/scanning/stop         - Stop scanning")
-    print("  GET  /api/scanning/status       - Get scanning status")
-    print("  GET  /api/scanning/devices      - Get detected devices")
-    print("  POST /api/scanning/devices/clear - Clear detected devices")
-    print("\nWebSocket endpoint: ws://localhost:5000")
+    print(f"  GET  /health                    - Health check")
+    print(f"  GET  /api/scanning/interfaces   - Get wireless interfaces")
+    print(f"  POST /api/scanning/start        - Start scanning")
+    print(f"  POST /api/scanning/stop         - Stop scanning")
+    print(f"  GET  /api/scanning/status       - Get scanning status")
+    print(f"  GET  /api/scanning/devices      - Get detected devices")
+    print(f"  POST /api/scanning/devices/clear - Clear detected devices")
+    print(f"\nWebSocket endpoint: ws://{host}:{port}")
     print("=" * 50)
-    
-    # Run the application with SocketIO
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+
+    if debug:
+        print("WARNING: Debug mode is enabled. Do not use in production.")
+
+    socketio.run(app, host=host, port=port, debug=debug)
 
 
 if __name__ == '__main__':
