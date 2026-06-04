@@ -1,0 +1,58 @@
+.seenya-card {
+    margin: 1em;
+}
+
+.seenya-deps {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    padding: 0.75em 1em;
+    margin-bottom: 1em;
+    border-radius: 4px;
+    background: rgba(255, 152, 0, 0.12);
+}
+
+.seenya-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75em;
+    margin-bottom: 0.5em;
+}
+
+.seenya-iface {
+    min-width: 220px;
+}
+
+.seenya-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.75em 0;
+    opacity: 0.85;
+}
+
+.seenya-count {
+    font-weight: 600;
+}
+
+.seenya-error {
+    color: #f44336;
+    margin: 0.5em 0;
+}
+
+.seenya-table {
+    width: 100%;
+    margin-top: 0.5em;
+}
+
+.seenya-table td,
+.seenya-table th {
+    padding-right: 1em;
+}
+
+.seenya-empty {
+    margin-top: 1em;
+    opacity: 0.7;
+    font-style: italic;
+}

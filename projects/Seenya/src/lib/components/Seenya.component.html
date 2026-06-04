@@ -1,0 +1,79 @@
+<mat-card class="seenya-card">
+    <mat-card-title>Seenya &mdash; Device Detection</mat-card-title>
+    <mat-card-subtitle>Capture nearby 802.11 MAC addresses, signal &amp; vendor.</mat-card-subtitle>
+
+    <mat-card-content>
+
+        <!-- dependency banner -->
+        <div *ngIf="!depsInstalled" class="seenya-deps">
+            <mat-icon color="warn">warning</mat-icon>
+            <span><strong>tcpdump</strong> is required for capture and is not installed.</span>
+            <button mat-flat-button color="accent" [disabled]="busy" (click)="installDeps()">
+                Install tcpdump
+            </button>
+        </div>
+
+        <!-- controls -->
+        <div class="seenya-controls">
+            <mat-form-field class="seenya-iface">
+                <mat-label>Monitor interface</mat-label>
+                <mat-select [(ngModel)]="selectedInterface" [disabled]="scanning">
+                    <mat-option *ngFor="let i of interfaces" [value]="i">{{ i }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button mat-flat-button color="primary" *ngIf="!scanning"
+                    [disabled]="busy || !selectedInterface" (click)="start()">
+                <mat-icon>play_arrow</mat-icon> Start Scan
+            </button>
+            <button mat-flat-button color="warn" *ngIf="scanning" [disabled]="busy" (click)="stop()">
+                <mat-icon>stop</mat-icon> Stop Scan
+            </button>
+            <button mat-stroked-button [disabled]="!devices.length" (click)="clear()">
+                <mat-icon>delete_sweep</mat-icon> Clear
+            </button>
+        </div>
+
+        <mat-progress-bar *ngIf="scanning" mode="indeterminate" color="primary"></mat-progress-bar>
+
+        <div class="seenya-status">
+            <span *ngIf="scanning">Scanning on <strong>{{ selectedInterface }}</strong> &hellip;</span>
+            <span *ngIf="!scanning">Idle.</span>
+            <span class="seenya-count">{{ deviceCount }} device(s)</span>
+        </div>
+
+        <div *ngIf="error" class="seenya-error"><strong>{{ error }}</strong></div>
+
+        <!-- device table -->
+        <table mat-table [dataSource]="devices" class="seenya-table" *ngIf="devices.length">
+            <ng-container matColumnDef="mac">
+                <th mat-header-cell *matHeaderCellDef>MAC</th>
+                <td mat-cell *matCellDef="let d">{{ d.mac }}</td>
+            </ng-container>
+            <ng-container matColumnDef="vendor">
+                <th mat-header-cell *matHeaderCellDef>Vendor</th>
+                <td mat-cell *matCellDef="let d">{{ d.vendor }}</td>
+            </ng-container>
+            <ng-container matColumnDef="signal">
+                <th mat-header-cell *matHeaderCellDef>Signal</th>
+                <td mat-cell *matCellDef="let d">{{ signalLabel(d.signal) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="count">
+                <th mat-header-cell *matHeaderCellDef>Frames</th>
+                <td mat-cell *matCellDef="let d">{{ d.count }}</td>
+            </ng-container>
+            <ng-container matColumnDef="last_seen">
+                <th mat-header-cell *matHeaderCellDef>Last seen</th>
+                <td mat-cell *matCellDef="let d">{{ d.last_seen }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <div *ngIf="!devices.length && scanning" class="seenya-empty">
+            Listening&hellip; no devices detected yet.
+        </div>
+
+    </mat-card-content>
+</mat-card>

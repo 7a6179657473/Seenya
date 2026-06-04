@@ -1,136 +1,65 @@
-# Seenya - Wireless MAC Address Scanner
+# Seenya
 
-**Phase 1: MAC Address Detection Module** ✅ **COMPLETED**
+A **WiFi Pineapple Mark 7** module for passive device detection. Seenya captures
+nearby 802.11 MAC addresses with signal strength and vendor, and presents them as a
+live table inside the Pineapple's management UI.
 
-Seenya is a powerful wireless device detection tool that captures and monitors MAC addresses of devices within wireless range. Built with Python (Flask) backend and Angular Material frontend, it provides real-time detection and logging capabilities.
+> Built as a proper Mk7 module: an Angular Material front-end loaded into the Pineapple
+> UI, with a Python back-end on the Hak5 module SDK. It does **not** run a standalone
+> web server.
 
-## 🚀 Current Status: Phase 1 Complete
+## Features
+- Live capture of nearby device MACs on a monitor-mode interface
+- Per-device signal strength (RSSI) and vendor (OUI) lookup
+- Aggregation: first/last seen, frame count, strongest signal
+- One-click install of the capture dependency (`tcpdump`) via `opkg`
+- Angular Material UI: interface picker, start/stop, auto-refreshing device table
 
-### ✅ What's Working:
-- Real-time wireless MAC address detection using scapy
-- Modern Angular Material UI for device monitoring
-- WebSocket-based real-time updates
-- Device type identification (OUI lookup)
-- Signal strength monitoring
-- Packet count tracking
-- First/last seen timestamps
+## How it works
+| Layer | Location | Notes |
+|-------|----------|-------|
+| Back-end | `projects/Seenya/src/module.py` | Hak5 SDK (`Module`, `JobManager`, `opkg`, notifications). Runs `tcpdump` in a background `Job`, parses each 802.11 line for MAC + RSSI, aggregates into a device store. Talks to the UI over the module socket. |
+| Front-end | `projects/Seenya/src/lib/` | Angular 9 library. `Seenya.service.ts` wraps the module API; the component polls `get_devices`/`get_status` every 2s (no WebSockets). |
+| Manifest | `projects/Seenya/src/module.json` | Module metadata (name, version, target devices). |
 
-### 📋 Features:
-- **Backend**: Python Flask API with SocketIO for real-time communication
-- **Frontend**: Angular 16 with Material Design components
-- **Scanning**: Wireless packet capture using scapy library
-- **Real-time**: Live updates via WebSocket connections
-- **Cross-platform**: Windows support with PowerShell setup scripts
+**Backend actions** (each a `@module.handles_action` in `module.py`, called 1:1 by the
+front-end service): `check_dependencies`, `manage_dependencies`, `list_interfaces`,
+`start_scan`, `stop_scan`, `get_status`, `get_devices`, `clear_devices`.
 
-## 🛠️ Quick Start
+## Install
+See **[docs/ON_DEVICE.md](docs/ON_DEVICE.md)** for the full build + install + smoke-test
+runbook. Short version, on a build host:
 
-### Prerequisites
-- **Python 3.8+** (for backend)
-- **Node.js 16+** (for frontend)
-- **Administrator privileges** (required for packet capture on Windows)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Seenya
-   ```
-
-2. **Setup Backend** (Run as Administrator)
-   ```bash
-   setup-backend.bat
-   ```
-
-3. **Setup Frontend**
-   ```bash
-   setup-frontend.bat
-   ```
-
-### Running the Application
-
-1. **Start Backend** (Run as Administrator)
-   ```bash
-   start-backend.bat
-   ```
-   Backend will be available at: http://localhost:5000
-
-2. **Start Frontend** (In another terminal)
-   ```bash
-   start-frontend.bat
-   ```
-   Frontend will be available at: http://localhost:4200
-
-3. **Open your browser** and navigate to http://localhost:4200
-
-## 📁 Project Structure
-
-```
-Seenya/
-├── seenya-backend/           # Python Flask API
-│   ├── app/
-│   │   ├── services/         # Wireless scanning service
-│   │   ├── routes/          # API endpoints
-│   │   ├── models/          # Data models
-│   │   └── utils/           # Utilities
-│   ├── requirements.txt     # Python dependencies
-│   └── run.py              # Main application entry
-├── seenya-frontend/         # Angular Material UI
-│   ├── src/app/
-│   │   ├── components/      # UI components
-│   │   ├── services/        # API services
-│   │   └── models/         # TypeScript interfaces
-│   └── package.json        # Node.js dependencies
-├── setup-backend.bat       # Backend setup script
-├── setup-frontend.bat      # Frontend setup script
-├── start-backend.bat       # Backend start script
-├── start-frontend.bat      # Frontend start script
-└── WARP.md                # Development guidance
+```bash
+nvm use            # Node 14 (see .nvmrc) — required by the Angular 9 toolchain
+./dev/preflight.sh # verify packaging artifacts
+./build.sh package # npm install -> ng build --prod -> Seenya-<ver>.tar.gz
+./build.sh copy    # scp to root@172.16.42.1:/pineapple/modules  (or upload the tar in the UI)
 ```
 
-## 🔧 API Endpoints
+> **Angular version is pinned to 9 on purpose.** The module is a library loaded into the
+> Mk7 firmware's Angular 9 host app — upgrading the framework would break loading. Build
+> with Node 12–14; newer Node will fail the Angular 9 build.
 
-- `GET /health` - Health check
-- `GET /api/scanning/interfaces` - Get wireless interfaces
-- `POST /api/scanning/start` - Start scanning
-- `POST /api/scanning/stop` - Stop scanning
-- `GET /api/scanning/status` - Get scanning status
-- `GET /api/scanning/devices` - Get detected devices
-- `POST /api/scanning/devices/clear` - Clear detected devices
-- `WebSocket: ws://localhost:5000` - Real-time device updates
+## Development
+The Python back-end is testable on a laptop without the Pineapple, via a mock of the
+Hak5 SDK in `dev/_stubs/`:
 
-## 🎯 Roadmap
+```bash
+./dev/run_tests.sh   # byte-compile + backend unit/integration + frontend↔backend contract
+```
 
-### Phase 2: Logging & Database (Next)
-- [ ] Database integration (SQLite/PostgreSQL)
-- [ ] Historical device logs
-- [ ] Device tracking over time
-- [ ] Alert system for known/new devices
-- [ ] Export functionality (CSV, JSON)
+- `dev/test_module.py` — action dispatch + scan lifecycle (mock SDK)
+- `dev/test_parser.py` — the pure tcpdump MAC/RSSI parser
+- `dev/test_integration.py` — full capture pipeline → device store → actions
+- `dev/test_frontend_contract.py` — front-end action/column wiring matches the backend
 
-### Phase 3: Advanced Features
-- [ ] Access Point creation mode
-- [ ] Device fingerprinting
-- [ ] Network mapping
-- [ ] Mobile app companion
+`dev/` is a development harness and is not shipped to the device.
 
-### Phase 4: Hardware Integration
-- [ ] Hak5 Pineapple module
-- [ ] Raspberry Pi deployment
-- [ ] Portable hardware solution
+## Legal
+For **authorized** security testing and education only. Capturing wireless traffic may
+be regulated where you live — only monitor networks and devices you own or have explicit
+permission to test.
 
-## 🔒 Security & Legal Notice
-
-**Important**: This tool is designed for educational and authorized security testing purposes only. Ensure you have explicit permission before scanning networks you don't own. Wireless monitoring may be subject to local laws and regulations.
-
-## 🤝 Contributing
-
-Contributions are welcome! This project is open source and will remain that way.
-
-## 📄 License
-
-Open source - feel free to contribute and suggest improvements!
-
----
-
-**Note**: Administrator privileges are required on Windows for packet capture functionality. The tool currently works best in monitor mode on wireless interfaces that support it.
+## License
+[MIT](LICENSE).

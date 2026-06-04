@@ -1,0 +1,9 @@
+{
+    "name": "Seenya",
+    "title": "Seenya",
+    "description": "Detect and monitor nearby devices by capturing 802.11 MAC addresses, signal strength, and vendor.",
+    "version": "0.1.0",
+    "author": "zayets",
+    "firmware_required": "1.0.0",
+    "devices": ["wifipineapplemk7"]
+}
